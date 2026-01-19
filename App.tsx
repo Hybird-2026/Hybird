@@ -221,14 +221,14 @@ const App: React.FC = () => {
         );
       case 'mypage':
         return (
-          <div className="max-w-5xl mx-auto animate-fadeIn space-y-8">
+          <div className="max-w-[1440px] mx-auto animate-fadeIn space-y-8">
             {/* Base Profile Section */}
             <div className="bg-white rounded-3xl border p-10 shadow-sm flex flex-col md:flex-row items-center gap-10">
               <div className="relative group">
                 <div className="w-40 h-40 bg-slate-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl overflow-hidden transition-transform group-hover:scale-105">
                   <i className="fa-solid fa-user text-6xl text-slate-300"></i>
                 </div>
-                <button className="absolute bottom-2 right-2 bg-[#114982] text-white w-10 h-10 rounded-full border-4 border-white shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-colors">
+                <button className="absolute bottom-2 right-2 bg-[#114982] text-white w-10 h-10 rounded-full border-4 border-white shadow-lg flex items-center justify-center hover:bg-[#0d3a66] transition-colors">
                   <i className="fa-solid fa-camera text-sm"></i>
                 </button>
               </div>
@@ -237,7 +237,7 @@ const App: React.FC = () => {
                   <h3 className="text-4xl font-bold text-slate-800">{user.name}</h3>
                   <div className="flex justify-center md:justify-start gap-2">
                     <span className="bg-[#114982] text-white px-4 py-1 rounded-full text-xs font-bold">Lv.{user.level}</span>
-                    <span className="bg-indigo-50 text-indigo-600 px-4 py-1 rounded-full text-xs font-bold border border-indigo-100">{user.characterTitle}</span>
+                    <span className="bg-[#114982]/10 text-[#114982] px-4 py-1 rounded-full text-xs font-bold border border-[#114982]/20">{user.characterTitle}</span>
                   </div>
                 </div>
                 <p className="text-slate-500 font-bold text-lg mb-4">{user.major} | 20학번 (4학년)</p>
@@ -250,24 +250,24 @@ const App: React.FC = () => {
               <div className="bg-slate-50 p-6 rounded-2xl border flex flex-col items-center justify-center min-w-[150px]">
                  <span className="text-xs font-bold text-slate-400 mb-1">누적 활동 점수</span>
                  <span className="text-3xl font-black text-[#114982]">3,420</span>
-                 <span className="text-[10px] text-indigo-400 mt-2">상위 4.2%</span>
+                 <span className="text-[10px] text-[#114982]/60 mt-2">상위 4.2%</span>
               </div>
             </div>
 
             {/* Detailed Self-Introduction Sections (자소서 베이스) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {/* 성장과정 및 가치관 */}
               <div className="bg-white rounded-3xl border p-8 shadow-sm hover:border-[#114982] transition-colors group">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="text-lg font-bold text-slate-800 flex items-center gap-3">
-                    <span className="w-10 h-10 bg-blue-50 text-[#114982] rounded-xl flex items-center justify-center"><i className="fa-solid fa-seedling"></i></span>
+                    <span className="w-10 h-10 bg-[#114982] text-white rounded-xl flex items-center justify-center"><i className="fa-solid fa-seedling"></i></span>
                     성장과정 및 가치관
                   </h4>
                   <button className="text-slate-300 hover:text-[#114982] transition-colors"><i className="fa-solid fa-pen-to-square"></i></button>
                 </div>
                 <div className="space-y-4">
                   <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-xs font-black text-indigo-400 mb-2 uppercase tracking-widest">핵심 키워드</p>
+                    <p className="text-xs font-black text-[#114982] mb-2 uppercase tracking-widest">핵심 키워드</p>
                     <p className="text-sm font-bold text-slate-700 leading-relaxed italic">
                       "어려운 문제는 더 큰 배움의 기회입니다. 저는 '끈기'와 '논리적 분석'을 통해 불가능을 가능으로 바꾸는 과정에서 희열을 느낍니다."
                     </p>
@@ -282,14 +282,14 @@ const App: React.FC = () => {
               <div className="bg-white rounded-3xl border p-8 shadow-sm hover:border-[#114982] transition-colors group">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="text-lg font-bold text-slate-800 flex items-center gap-3">
-                    <span className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center"><i className="fa-solid fa-paper-plane"></i></span>
+                    <span className="w-10 h-10 bg-[#114982] text-white rounded-xl flex items-center justify-center"><i className="fa-solid fa-paper-plane"></i></span>
                     지원동기 및 직무 포부
                   </h4>
                   <button className="text-slate-300 hover:text-[#114982] transition-colors"><i className="fa-solid fa-pen-to-square"></i></button>
                 </div>
                 <div className="space-y-4">
                   <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-xs font-black text-orange-400 mb-2 uppercase tracking-widest">희망 직무</p>
+                    <p className="text-xs font-black text-[#114982] mb-2 uppercase tracking-widest">희망 직무</p>
                     <p className="text-sm font-bold text-slate-700">Service Planner & Frontend Engineer</p>
                   </div>
                   <p className="text-sm text-slate-500 leading-relaxed">
@@ -302,18 +302,18 @@ const App: React.FC = () => {
               <div className="bg-white rounded-3xl border p-8 shadow-sm hover:border-[#114982] transition-colors group">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="text-lg font-bold text-slate-800 flex items-center gap-3">
-                    <span className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center"><i className="fa-solid fa-bolt"></i></span>
+                    <span className="w-10 h-10 bg-[#114982] text-white rounded-xl flex items-center justify-center"><i className="fa-solid fa-bolt"></i></span>
                     성격의 장단점
                   </h4>
                   <button className="text-slate-300 hover:text-[#114982] transition-colors"><i className="fa-solid fa-pen-to-square"></i></button>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full mb-2 inline-block">STRENGTH</span>
+                    <span className="text-[10px] font-bold text-[#114982] bg-[#114982]/10 px-2 py-0.5 rounded-full mb-2 inline-block">STRENGTH</span>
                     <p className="text-sm text-slate-600 leading-relaxed">팀 내 분위기를 주도하는 긍정적인 커뮤니케이션 능력과 빠른 습득력</p>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-red-400 bg-red-50 px-2 py-0.5 rounded-full mb-2 inline-block">WEAKNESS</span>
+                    <span className="text-[10px] font-bold text-[#114982] bg-[#114982]/10 px-2 py-0.5 rounded-full mb-2 inline-block">WEAKNESS</span>
                     <p className="text-sm text-slate-600 leading-relaxed">세부 사항에 집착하여 속도가 늦어지는 경향 → 업무 우선순위 체크리스트 활용으로 극복 중</p>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ const App: React.FC = () => {
               <div className="bg-white rounded-3xl border p-8 shadow-sm hover:border-[#114982] transition-colors group">
                 <div className="flex justify-between items-center mb-6">
                   <h4 className="text-lg font-bold text-slate-800 flex items-center gap-3">
-                    <span className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center"><i className="fa-solid fa-handshake"></i></span>
+                    <span className="w-10 h-10 bg-[#114982] text-white rounded-xl flex items-center justify-center"><i className="fa-solid fa-handshake"></i></span>
                     협업 및 갈등해결
                   </h4>
                   <button className="text-slate-300 hover:text-[#114982] transition-colors"><i className="fa-solid fa-pen-to-square"></i></button>
@@ -333,7 +333,7 @@ const App: React.FC = () => {
                   <p className="text-sm text-slate-500 leading-relaxed">
                     지난 캡스톤 디자인 당시, 데이터베이스 구조를 두고 백엔드 팀과 발생한 이견을 중재하기 위해 각 방안의 비용/효율 분석 보고서를 작성하여 설득한 경험이 있습니다.
                   </p>
-                  <div className="flex items-center gap-2 text-xs font-bold text-purple-600">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#114982]">
                     <i className="fa-solid fa-link"></i>
                     <span>연결된 활동 기록: 캡스톤 디자인 프로젝트 (2024.11)</span>
                   </div>
@@ -345,7 +345,7 @@ const App: React.FC = () => {
             <div className="bg-[#114982] rounded-3xl p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
                <div className="relative z-10">
                  <h4 className="text-2xl font-bold mb-2">이 정보를 바탕으로 자소서를 만드시겠습니까?</h4>
-                 <p className="text-indigo-100 opacity-80">작성된 모든 데이터는 AI 취업 도구에서 초안 생성 시 활용됩니다.</p>
+                 <p className="text-white/80">작성된 모든 데이터는 AI 취업 도구에서 초안 생성 시 활용됩니다.</p>
                </div>
                <button 
                  onClick={() => setActiveTab('ai-tools')}
