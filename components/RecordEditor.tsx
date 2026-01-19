@@ -11,11 +11,21 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
+  const getTypeColor = () => {
+    switch(type) {
+      case ActivityType.PROJECT: return '#4285F4';
+      case ActivityType.CLASS: return '#E28779';
+      case ActivityType.EXTRACURRICULAR: return '#837655';
+      case ActivityType.TEAMWORK: return '#92B23E';
+      default: return '#114982';
+    }
+  };
+
   const renderGuide = () => {
     switch(type) {
       case ActivityType.PROJECT:
         return (
-          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-6 text-sm text-blue-800 shadow-sm animate-fadeIn">
+          <div className="bg-[#4285F4]/10 border border-[#4285F4]/30 p-5 rounded-xl mb-6 text-sm text-[#4285F4] shadow-sm animate-fadeIn">
             <p className="font-bold mb-2 flex items-center gap-2">
               <i className="fa-solid fa-rocket"></i>
               프로젝트 작성 가이드
@@ -29,7 +39,7 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
         );
       case ActivityType.CLASS:
         return (
-          <div className="bg-purple-50 border border-purple-100 p-5 rounded-xl mb-6 text-sm text-purple-800 shadow-sm animate-fadeIn">
+          <div className="bg-[#E28779]/10 border border-[#E28779]/30 p-5 rounded-xl mb-6 text-sm text-[#E28779] shadow-sm animate-fadeIn">
             <p className="font-bold mb-2 flex items-center gap-2">
               <i className="fa-solid fa-graduation-cap"></i>
               수업/학습 기록 가이드
@@ -42,7 +52,7 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
         );
       case ActivityType.EXTRACURRICULAR:
         return (
-          <div className="bg-orange-50 border border-orange-100 p-5 rounded-xl mb-6 text-sm text-orange-800 shadow-sm animate-fadeIn">
+          <div className="bg-[#837655]/10 border border-[#837655]/30 p-5 rounded-xl mb-6 text-sm text-[#837655] shadow-sm animate-fadeIn">
             <p className="font-bold mb-2 flex items-center gap-2">
               <i className="fa-solid fa-star"></i>
               대외활동 기록 가이드
@@ -55,7 +65,7 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
         );
       case ActivityType.TEAMWORK:
         return (
-          <div className="bg-green-50 border border-green-100 p-5 rounded-xl mb-6 text-sm text-green-800 shadow-sm animate-fadeIn">
+          <div className="bg-[#92B23E]/10 border border-[#92B23E]/30 p-5 rounded-xl mb-6 text-sm text-[#92B23E] shadow-sm animate-fadeIn">
             <p className="font-bold mb-2 flex items-center gap-2">
               <i className="fa-solid fa-people-arrows"></i>
               협업/갈등 경험 가이드
@@ -75,22 +85,35 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
+        <div className="w-10 h-10 bg-[#114982] rounded-xl flex items-center justify-center text-white">
           <i className="fa-solid fa-plus text-lg"></i>
         </div>
         <h3 className="text-2xl font-bold text-slate-800">새로운 경험 기록하기</h3>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        {Object.values(ActivityType).map((t) => (
+        {Object.values(ActivityType).map((t) => {
+          const getColor = () => {
+            switch(t) {
+              case ActivityType.PROJECT: return '#4285F4';
+              case ActivityType.CLASS: return '#E28779';
+              case ActivityType.EXTRACURRICULAR: return '#837655';
+              case ActivityType.TEAMWORK: return '#92B23E';
+              default: return '#114982';
+            }
+          };
+          const color = getColor();
+          
+          return (
           <button
             key={t}
             onClick={() => setType(t)}
             className={`px-4 py-3 rounded-xl text-xs font-bold transition-all border-2 flex flex-col items-center gap-2 ${
               type === t 
-                ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                : 'bg-white border-slate-100 text-slate-500 hover:border-indigo-200 hover:text-indigo-600'
+                ? 'text-white shadow-lg' 
+                : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'
             }`}
+            style={type === t ? { backgroundColor: color, borderColor: color } : {}}
           >
             <i className={`fa-solid ${
               t === ActivityType.PROJECT ? 'fa-folder-open' :
@@ -99,7 +122,8 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
             } text-lg`}></i>
             {t}
           </button>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -110,7 +134,16 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
             <label className="block text-sm font-bold text-slate-700 mb-2">활동 제목</label>
             <input 
               type="text" 
-              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 outline-none transition-all"
+              style={{ 
+                '--tw-ring-color': getTypeColor()
+              } as React.CSSProperties & { '--tw-ring-color': string }}
+              onFocus={(e) => {
+                e.target.style.boxShadow = `0 0 0 2px ${getTypeColor()}`;
+              }}
+              onBlur={(e) => {
+                e.target.style.boxShadow = '';
+              }}
               placeholder="예: 캡스톤 디자인 AI 챗봇 개발"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -120,7 +153,16 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
             <label className="block text-sm font-bold text-slate-700 mb-2">성장 로그 (기록)</label>
             <textarea 
               rows={6}
-              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none transition-all"
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 outline-none resize-none transition-all"
+              style={{ 
+                '--tw-ring-color': getTypeColor()
+              } as React.CSSProperties & { '--tw-ring-color': string }}
+              onFocus={(e) => {
+                e.target.style.boxShadow = `0 0 0 2px ${getTypeColor()}`;
+              }}
+              onBlur={(e) => {
+                e.target.style.boxShadow = '';
+              }}
               placeholder="가이드라인을 참고하여 구체적으로 작성해 보세요."
               value={content}
               onChange={(e) => setContent(e.target.value)}

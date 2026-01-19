@@ -18,6 +18,7 @@ const App: React.FC = () => {
   });
 
   const [interestFilter, setInterestFilter] = useState('전체');
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const mockSeniors = [
     { name: '김민수', major: '컴퓨터공학', level: 82, job: '네이버 웹개발자', tags: ['AI', 'Frontend'], type: 'senior' },
@@ -57,31 +58,81 @@ const App: React.FC = () => {
               </div>
               <div className="lg:col-span-2 bg-white rounded-3xl border p-8 shadow-sm">
                 <h4 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                   <i className="fa-solid fa-list-check text-indigo-600"></i>
+                   <span className="w-8 h-8 bg-[#114982] text-white rounded-lg flex items-center justify-center text-xs shadow-sm">
+                     <i className="fa-solid fa-list-check"></i>
+                   </span>
                    카테고리별 모아보기
                 </h4>
                 <div className="space-y-6">
-                  {Object.values(ActivityType).map((cat) => (
+                  {Object.values(ActivityType).map((cat) => {
+                    const getCategoryColor = () => {
+                      switch(cat) {
+                        case ActivityType.PROJECT: return '#4285F4';
+                        case ActivityType.CLASS: return '#E28779';
+                        case ActivityType.EXTRACURRICULAR: return '#837655';
+                        case ActivityType.TEAMWORK: return '#92B23E';
+                        default: return '#114982';
+                      }
+                    };
+                    const categoryColor = getCategoryColor();
+                    const isExpanded = expandedCategories[cat] || false;
+                    const recordCount = myRecords.filter(r => r.type === cat).length;
+                    
+                    return (
                     <div key={cat} className="space-y-3">
                       <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="text-sm font-bold text-slate-500 uppercase">{cat}</span>
-                        <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-400">
-                          {myRecords.filter(r => r.type === cat).length}
+                        <span className="text-sm font-bold text-slate-500 uppercase flex items-center gap-2">
+                          {cat}
+                          <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-400">
+                            {recordCount}
+                          </span>
                         </span>
+                        <button
+                          onClick={() => {
+                            setExpandedCategories(prev => ({
+                              ...prev,
+                              [cat]: !prev[cat]
+                            }));
+                          }}
+                          className="text-black hover:text-slate-600 transition-colors"
+                        >
+                          <i className={`fa-solid fa-plus text-sm transition-transform ${isExpanded ? 'rotate-45' : ''}`}></i>
+                        </button>
                       </div>
-                      <div className="space-y-2">
-                        {myRecords.filter(r => r.type === cat).map((r, i) => (
-                          <div key={i} className="p-3 bg-slate-50 rounded-xl hover:bg-indigo-50 transition-colors cursor-pointer group">
-                            <p className="text-sm font-bold text-slate-700 group-hover:text-indigo-600">{r.title}</p>
-                            <p className="text-[11px] text-slate-400">{r.date}</p>
-                          </div>
-                        ))}
-                        {myRecords.filter(r => r.type === cat).length === 0 && (
-                          <p className="text-xs text-slate-300 italic">기록된 활동이 없습니다.</p>
-                        )}
-                      </div>
+                      {isExpanded && (
+                        <div 
+                          className="space-y-2 overflow-hidden"
+                          style={{
+                            animation: 'slideDown 0.3s ease-out'
+                          }}
+                        >
+                          {myRecords.filter(r => r.type === cat).map((r, i) => (
+                            <div 
+                              key={i} 
+                              className="p-3 rounded-xl transition-colors cursor-pointer group"
+                              style={{
+                                backgroundColor: `${categoryColor}10`,
+                                border: `1px solid ${categoryColor}30`
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = `${categoryColor}20`;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = `${categoryColor}10`;
+                              }}
+                            >
+                              <p className="text-sm font-bold text-slate-700 group-hover:text-slate-900" style={{ color: categoryColor }}>{r.title}</p>
+                              <p className="text-[11px] text-slate-400">{r.date}</p>
+                            </div>
+                          ))}
+                          {recordCount === 0 && (
+                            <p className="text-xs text-slate-300 italic">기록된 활동이 없습니다.</p>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -93,8 +144,8 @@ const App: React.FC = () => {
         return (
           <div className="animate-fadeIn space-y-10">
             {/* Interests Filter */}
-            <div className="bg-white rounded-3xl border p-8 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-800 mb-6">관심분야별 선배 탐색</h3>
+            <div className="bg-white rounded-none border p-8 shadow-sm">
+              <h3 className="text-xl font-bold text-slate-800 mb-6">관심분야별 동료/선배 탐색</h3>
               <div className="flex flex-wrap gap-2">
                 {['전체', 'AI', 'Frontend', 'Backend', 'Design', 'Marketing', 'PM'].map(interest => (
                   <button 
@@ -115,15 +166,17 @@ const App: React.FC = () => {
             {/* Friends Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 px-1">
-                <i className="fa-solid fa-user-group text-green-500"></i>
+                <span className="w-8 h-8 bg-[#114982] text-white rounded-lg flex items-center justify-center text-xs shadow-sm">
+                  <i className="fa-solid fa-user-group"></i>
+                </span>
                 <h3 className="text-2xl font-bold text-slate-800">함께 성장하는 동료 (친구)</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredSeniors.filter(s => s.type === 'friend').map((friend, idx) => (
-                  <div key={idx} className="bg-white rounded-2xl border p-6 hover:shadow-lg transition-all border-green-100 group">
+                  <div key={idx} className="bg-white rounded-2xl border p-6 hover:shadow-lg hover:-translate-y-2 transition-all border-[#FF7F66]/20 group">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center border border-green-100">
-                        <i className="fa-solid fa-user text-green-400"></i>
+                      <div className="w-12 h-12 rounded-full bg-[#FF7F66]/10 flex items-center justify-center border border-[#FF7F66]/20">
+                        <i className="fa-solid fa-user text-[#FF7F66]"></i>
                       </div>
                       <div>
                         <p className="font-bold text-slate-800">{friend.name}</p>
@@ -133,7 +186,7 @@ const App: React.FC = () => {
                     <div className="flex gap-1 mb-4">
                       {friend.tags.slice(0, 2).map(t => <span key={t} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{t}</span>)}
                     </div>
-                    <button className="w-full py-2 bg-green-50 text-green-600 rounded-lg text-xs font-bold group-hover:bg-green-600 group-hover:text-white transition-all">활동 보러가기</button>
+                    <button className="w-full py-2 bg-[#FF7F66]/10 text-[#FF7F66] rounded-lg text-xs font-bold group-hover:bg-[#FF7F66] group-hover:text-white transition-all">활동 보러가기</button>
                   </div>
                 ))}
               </div>
@@ -142,22 +195,24 @@ const App: React.FC = () => {
             {/* Seniors Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 px-1">
-                <i className="fa-solid fa-award text-indigo-500"></i>
+                <span className="w-8 h-8 bg-[#114982] text-white rounded-lg flex items-center justify-center text-xs shadow-sm">
+                  <i className="fa-solid fa-award"></i>
+                </span>
                 <h3 className="text-2xl font-bold text-slate-800">앞서가는 커리어 선배</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredSeniors.filter(s => s.type === 'senior').map((senior, idx) => (
-                  <div key={idx} className="bg-white rounded-2xl border p-6 hover:shadow-lg transition-all border-indigo-100 relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded-bl-xl shadow-md">SENIOR</div>
+                  <div key={idx} className="bg-white rounded-2xl border p-6 hover:shadow-lg hover:-translate-y-2 transition-all border-[#2563EB]/20 relative group overflow-hidden">
+                    <div className="absolute top-0 right-0 px-3 py-1 bg-[#2563EB] text-white text-[10px] font-bold rounded-bl-xl shadow-md">SENIOR</div>
                     <div className="mb-4">
-                      <p className="text-xs font-bold text-indigo-500 mb-1">{senior.job}</p>
+                      <p className="text-xs font-bold text-[#2563EB] mb-1">{senior.job}</p>
                       <p className="font-bold text-lg text-slate-800">{senior.name} 선배</p>
                       <p className="text-xs text-slate-400">{senior.major}</p>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-6">
-                      {senior.tags.map(t => <span key={t} className="text-[10px] bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded border border-indigo-100 font-bold">#{t}</span>)}
+                      {senior.tags.map(t => <span key={t} className="text-[10px] bg-[#2563EB]/10 text-[#2563EB] px-2 py-0.5 rounded border border-[#2563EB]/20 font-bold">#{t}</span>)}
                     </div>
-                    <button className="w-full py-3 bg-[#114982] text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-100 hover:scale-[1.02] transition-transform">포트폴리오 엿보기</button>
+                    <button className="w-full py-3 bg-[#2563EB]/20 text-[#2563EB] rounded-xl text-xs font-bold hover:bg-[#2563EB] hover:text-white hover:scale-[1.02] transition-all shadow-lg shadow-[#2563EB]/10 hover:shadow-[#2563EB]/20">포트폴리오 엿보기</button>
                   </div>
                 ))}
               </div>
@@ -308,9 +363,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {renderContent()}
-    </Layout>
+    <>
+      <style>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+        {renderContent()}
+      </Layout>
+    </>
   );
 };
 
