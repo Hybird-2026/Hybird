@@ -221,9 +221,9 @@ const App: React.FC = () => {
         );
       case 'mypage':
         return (
-          <div className="max-w-[1440px] mx-auto animate-fadeIn space-y-8">
+          <div className="max-w-[1440px] mx-auto animate-fadeIn space-y-4">
             {/* Base Profile Section */}
-            <div className="bg-white rounded-3xl border p-10 shadow-sm flex flex-col md:flex-row items-center gap-10">
+            <div className="bg-white rounded-none border p-10 shadow-sm flex flex-col md:flex-row items-center gap-10">
               <div className="relative group">
                 <div className="w-40 h-40 bg-slate-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl overflow-hidden transition-transform group-hover:scale-105">
                   <i className="fa-solid fa-user text-6xl text-slate-300"></i>
@@ -255,7 +255,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Detailed Self-Introduction Sections (자소서 베이스) */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-1 mb-8">
               {/* 성장과정 및 가치관 */}
               <div className="bg-white rounded-3xl border p-8 shadow-sm hover:border-[#114982] transition-colors group">
                 <div className="flex justify-between items-center mb-6">
@@ -342,9 +342,10 @@ const App: React.FC = () => {
             </div>
 
             {/* Resume Export Section */}
-            <div className="bg-[#114982] rounded-3xl p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+            <div className="max-w-4xl mx-auto bg-[#114982] rounded-3xl py-10 text-white shadow-xl px-4 sm:px-8 relative overflow-hidden">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                <div className="relative z-10">
-                 <h4 className="text-2xl font-bold mb-2">이 정보를 바탕으로 자소서를 만드시겠습니까?</h4>
+                 <h4 className="text-2xl font-bold mb-2">이 정보를 바탕으로 자기소개서를 만들어볼까요?</h4>
                  <p className="text-white/80">작성된 모든 데이터는 AI 취업 도구에서 초안 생성 시 활용됩니다.</p>
                </div>
                <button 
@@ -353,6 +354,7 @@ const App: React.FC = () => {
                >
                  AI 자소서 생성하러 가기
                </button>
+              </div>
                <i className="fa-solid fa-wand-sparkles absolute -right-10 -bottom-10 text-[200px] text-white/5 -rotate-12"></i>
             </div>
           </div>
