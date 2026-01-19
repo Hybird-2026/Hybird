@@ -20,13 +20,13 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
       {/* Top Navigation Bar - Full Width with edge-to-edge content */}
       <header className="sticky top-0 z-[100] bg-slate-50 w-full border-b-2 border-[#114982] backdrop-blur-sm">
         <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between relative">
-          <div className="flex items-center gap-6 lg:gap-12 h-full">
+          <div className="flex items-center gap-6 lg:gap-12 h-full flex-shrink-0">
             <div className="flex items-center justify-center cursor-pointer shrink-0 relative z-[60] h-full" onClick={() => setActiveTab('dashboard')}>
               <img 
-                src="/hybird_ci.png" 
+                src="/Hybird/HyBird_CI_HYblue.png" 
                 alt="HyBird" 
-                className="h-14 object-contain" 
-                style={{ filter: 'none', opacity: 1 }}
+                className="h-14 w-auto object-contain max-w-full" 
+                style={{ filter: 'none', opacity: 1, imageRendering: 'auto' }}
               />
             </div>
           </div>
@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`px-4 lg:px-6 py-2.5 rounded-full text-lg font-bold transition-all flex items-center justify-center whitespace-nowrap text-[#114982] ${
+                className={`px-4 lg:px-6 py-2.5 rounded-full text-lg font-bold transition-all flex items-center justify-center whitespace-nowrap text-[#114982] h-full ${
                   activeTab === item.id 
                     ? 'bg-[#114982]/10 shadow-md' 
                     : 'hover:bg-[#114982]/5'
@@ -47,19 +47,19 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
             ))}
           </nav>
 
-          <div className="flex items-center justify-center gap-3 lg:gap-6 shrink-0 h-full">
-            <button className="p-2.5 hover:bg-[#114982]/10 rounded-full transition-colors relative text-[#114982] flex items-center justify-center">
+          <div className="flex items-center justify-center gap-3 lg:gap-6 shrink-0 h-full flex-shrink-0">
+            <button className="p-2.5 hover:bg-[#114982]/10 rounded-full transition-colors relative text-[#114982] flex items-center justify-center h-full">
               <i className="fa-solid fa-bell text-xl"></i>
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
             
             {/* My Page Access via Profile Icon */}
             <div 
-              className={`flex items-center justify-center gap-3 pl-3 lg:pl-6 border-l border-[#114982]/20 cursor-pointer hover:bg-[#114982]/5 transition-all py-2 px-2 rounded-lg h-full ${activeTab === 'mypage' ? 'bg-[#114982]/10' : ''}`}
+              className={`flex items-center justify-center gap-3 pl-3 lg:pl-6 cursor-pointer hover:bg-[#114982]/5 transition-all py-2 px-2 rounded-lg h-full ${activeTab === 'mypage' ? 'bg-[#114982]/10' : ''}`}
               onClick={() => setActiveTab('mypage')}
               title="마이페이지"
             >
-              <div className="text-right hidden sm:block flex flex-col justify-center">
+              <div className="text-right hidden sm:block flex flex-col justify-center h-full">
                 <span className="text-base font-black block text-[#114982]">배혜진 님</span>
                 <span className="text-xs text-[#114982]/60 block leading-none">컴퓨터공학 전공</span>
               </div>
