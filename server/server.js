@@ -25,13 +25,24 @@ const swaggerSpec = swaggerJsdoc({
 });
 
 // 미들웨어 설정
-const allowedOrigins = [
+const defaultOrigins = [
   process.env.CLIENT_URL || 'http://localhost:5173',
   'http://localhost:3000'
 ];
 
+const envOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [...defaultOrigins, ...envOrigins];
+
 app.use(cors({
   origin: (origin, callback) => {
+    if (process.env.CORS_ALLOW_ALL === 'true') {
+      return callback(null, true);
+    }
+
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
