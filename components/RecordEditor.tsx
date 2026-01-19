@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
-import { ActivityType } from '../types';
+import { ActivityType, ActivityTypeLabel } from '../types';
 
 interface RecordEditorProps {
-  onSave: (record: any) => void;
+  onSave: (record: { type: ActivityType; title: string; content: string }) => Promise<void>;
 }
 
 const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
   const [type, setType] = useState<ActivityType>(ActivityType.PROJECT);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const getTypeColor = () => {
     switch(type) {
@@ -120,7 +121,7 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
               t === ActivityType.CLASS ? 'fa-graduation-cap' :
               t === ActivityType.EXTRACURRICULAR ? 'fa-star' : 'fa-people-group'
             } text-lg`}></i>
-            {t}
+            {ActivityTypeLabel[t]}
           </button>
           );
         })}
@@ -169,10 +170,24 @@ const RecordEditor: React.FC<RecordEditorProps> = ({ onSave }) => {
             />
           </div>
           <button 
-            onClick={() => onSave({ type, title, content })}
-            className="w-full bg-[#114982] text-white py-4 rounded-xl font-bold hover:bg-[#0a2e55] transition-all shadow-lg flex items-center justify-center gap-2"
+            onClick={async () => {
+              if (!title.trim()) {
+                alert('활동 제목을 입력해주세요');
+                return;
+              }
+              setSubmitting(true);
+              try {
+                await onSave({ type, title, content });
+                setTitle('');
+                setContent('');
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+            disabled={submitting}
+            className="w-full bg-[#114982] text-white py-4 rounded-xl font-bold hover:bg-[#0a2e55] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            기록 저장하고 스탯 올리기 (+15 EXP)
+            {submitting ? '저장 중...' : '기록 저장하고 스탯 올리기 (+15 EXP)'}
           </button>
         </div>
       </div>
