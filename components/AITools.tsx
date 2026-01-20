@@ -2,7 +2,11 @@
 import React, { useState } from 'react';
 import { generateResumeDraft, generateInterviewQuestions } from '../services/geminiService';
 
-const AITools: React.FC = () => {
+interface AIToolsProps {
+  userId: number;
+}
+
+const AITools: React.FC<AIToolsProps> = ({ userId }) => {
   // Resume states
   const [resumeLoading, setResumeLoading] = useState(false);
   const [resumeResult, setResumeResult] = useState<any>(null);
@@ -18,8 +22,8 @@ const AITools: React.FC = () => {
   const handleResumeGenerate = async () => {
     setResumeLoading(true);
     try {
-      const text = await generateResumeDraft("프론트엔드 프로젝트 참여, 팀장 역할 수행", resumeCompany, resumeJob, question);
-      setResumeResult(text);
+      const result = await generateResumeDraft(userId, resumeCompany, resumeJob, question);
+      setResumeResult(result);
     } catch (err) {
       alert("AI 생성 중 오류가 발생했습니다.");
     }
@@ -29,7 +33,7 @@ const AITools: React.FC = () => {
   const handleInterviewGenerate = async () => {
     setInterviewLoading(true);
     try {
-      const qas = await generateInterviewQuestions("프론트엔드 프로젝트 참여, 팀장 역할 수행", interviewCompany);
+      const qas = await generateInterviewQuestions(userId, interviewCompany, resumeJob);
       setInterviewResult(qas);
     } catch (err) {
       alert("AI 생성 중 오류가 발생했습니다.");
@@ -95,8 +99,9 @@ const AITools: React.FC = () => {
                 생성 결과
               </h4>
               <div className="bg-slate-50 rounded-xl p-6 text-slate-800 leading-relaxed whitespace-pre-wrap">
-                {resumeResult}
+                {resumeResult.draft}
               </div>
+              <p className="text-xs text-slate-400 mt-2">글자 수: {resumeResult.wordCount}</p>
             </div>
           )}
         </div>
