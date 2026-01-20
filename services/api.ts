@@ -1,21 +1,29 @@
-import axios from 'axios';
-import { ActivityRecord, CommunityMember, UserProfile, ActivityType } from '../types';
+import axios from "axios";
+import {
+  ActivityRecord,
+  CommunityMember,
+  UserProfile,
+  ActivityType,
+} from "../types";
 
-const apiBaseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const apiBaseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
 
 export const apiClient = axios.create({
   baseURL: apiBaseURL,
-  withCredentials: true
+  withCredentials: false,
 });
 
-export const fetchUserProfile = async (userId: number): Promise<UserProfile> => {
+export const fetchUserProfile = async (
+  userId: number,
+): Promise<UserProfile> => {
   const { data } = await apiClient.get(`/users/${userId}`);
   return data.data as UserProfile;
 };
 
 export const updateUserProfile = async (
   userId: number,
-  payload: Partial<Pick<UserProfile, 'name' | 'major' | 'characterTitle'>>
+  payload: Partial<Pick<UserProfile, "name" | "major" | "characterTitle">>,
 ): Promise<UserProfile> => {
   const { data } = await apiClient.put(`/users/${userId}`, payload);
   return data.data as UserProfile;
@@ -30,8 +38,10 @@ export interface FetchRecordsParams {
   offset?: number;
 }
 
-export const fetchRecords = async (params: FetchRecordsParams): Promise<ActivityRecord[]> => {
-  const { data } = await apiClient.get('/records', { params });
+export const fetchRecords = async (
+  params: FetchRecordsParams,
+): Promise<ActivityRecord[]> => {
+  const { data } = await apiClient.get("/records", { params });
   return data.data as ActivityRecord[];
 };
 
@@ -47,18 +57,34 @@ export interface CreateRecordPayload {
 }
 
 export const createRecord = async (payload: CreateRecordPayload) => {
-  const { data } = await apiClient.post('/records', payload);
+  const { data } = await apiClient.post("/records", payload);
   return data;
 };
 
-export const fetchCommunityMembers = async (filters?: { type?: string; tag?: string; limit?: number }): Promise<CommunityMember[]> => {
-  const { data } = await apiClient.get('/community', { params: filters });
+export const fetchCommunityMembers = async (filters?: {
+  type?: string;
+  tag?: string;
+  limit?: number;
+}): Promise<CommunityMember[]> => {
+  const { data } = await apiClient.get("/community", { params: filters });
   return data.data as CommunityMember[];
 };
 
-export const addExperience = async (userId: number, expAmount: number, reason?: string) => {
-  const { data } = await apiClient.post(`/users/${userId}/exp`, { expAmount, reason });
-  return data.data as { level: number; exp: number; maxExp: number; leveledUp: boolean };
+export const addExperience = async (
+  userId: number,
+  expAmount: number,
+  reason?: string,
+) => {
+  const { data } = await apiClient.post(`/users/${userId}/exp`, {
+    expAmount,
+    reason,
+  });
+  return data.data as {
+    level: number;
+    exp: number;
+    maxExp: number;
+    leveledUp: boolean;
+  };
 };
 
 export interface ResumePayload {
@@ -70,8 +96,13 @@ export interface ResumePayload {
 }
 
 export const requestResumeDraft = async (payload: ResumePayload) => {
-  const { data } = await apiClient.post('/ai/resume', payload);
-  return data.data as { draft: string; wordCount: number; usedRecords: { id: number; title: string }[]; generatedAt: string };
+  const { data } = await apiClient.post("/ai/resume", payload);
+  return data.data as {
+    draft: string;
+    wordCount: number;
+    usedRecords: { id: number; title: string }[];
+    generatedAt: string;
+  };
 };
 
 export interface InterviewPayload {
@@ -82,6 +113,10 @@ export interface InterviewPayload {
 }
 
 export const requestInterviewQuestions = async (payload: InterviewPayload) => {
-  const { data } = await apiClient.post('/ai/interview', payload);
-  return data.data as { questions: { question: string; intent: string; tip: string }[]; totalQuestions: number; generatedAt: string };
+  const { data } = await apiClient.post("/ai/interview", payload);
+  return data.data as {
+    questions: { question: string; intent: string; tip: string }[];
+    totalQuestions: number;
+    generatedAt: string;
+  };
 };
