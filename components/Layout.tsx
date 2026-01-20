@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
           <div className="flex items-center gap-6 lg:gap-12 h-full flex-shrink-0">
             <div className="flex items-center justify-center cursor-pointer shrink-0 relative z-[60] h-full" onClick={() => setActiveTab('dashboard')}>
               <img 
-                src="/Hybird/HyBird_CI_HYblue.png" 
+                src="/HyBird_CI_HYblue.png" 
                 alt="HyBird" 
                 className="h-14 w-auto object-contain max-w-full" 
                 style={{ filter: 'none', opacity: 1, imageRendering: 'auto' }}
