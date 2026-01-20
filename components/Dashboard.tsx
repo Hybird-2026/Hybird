@@ -1,11 +1,28 @@
 
-import React, { useState, useEffect } from 'react';
-import { UserProfile, ActivityType } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { UserProfile, ActivityType, ActivityRecord, ActivityTypeLabel } from '../types';
 
-interface DashboardProps { user: UserProfile; }
+interface DashboardProps {
+  user: UserProfile;
+  records: ActivityRecord[];
+  loading?: boolean;
+}
 
-const Dashboard: React.FC<DashboardProps> = ({ user }) => {
-  const [selectedYear, setSelectedYear] = useState('2024');
+const Dashboard: React.FC<DashboardProps> = ({ user, records, loading = false }) => {
+  const normalizedRecords = useMemo(() => {
+    return records.map((r) => {
+      const year = r.year || (r.date ? new Date(r.date).getFullYear().toString() : undefined);
+      return { ...r, year };
+    });
+  }, [records]);
+
+  const availableYears = useMemo(() => {
+    const years = Array.from(new Set(normalizedRecords.map((r) => r.year).filter(Boolean))) as string[];
+    if (years.length === 0) return [new Date().getFullYear().toString()];
+    return years.sort();
+  }, [normalizedRecords]);
+
+  const [selectedYear, setSelectedYear] = useState<string>(availableYears[availableYears.length - 1]);
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [animatedRank, setAnimatedRank] = useState(100);
   const [isGraduationCapVisible, setIsGraduationCapVisible] = useState(false);
@@ -54,18 +71,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     };
   }, [levelProgress, targetRank]);
 
-  const allRecords = [
-    { title: '웹개발 캡스톤 프로젝트', type: ActivityType.PROJECT, date: '2024.11.20', status: '완료', year: '2024' },
-    { title: 'SW 마에스트로 15기 준비', type: ActivityType.EXTRACURRICULAR, date: '2024.11.15', status: '진행중', year: '2024' },
-    { title: '알고리즘 스터디 3주차', type: ActivityType.CLASS, date: '2024.11.10', status: '완료', year: '2024' },
-    { title: '데이터베이스 시스템 기말 프로젝트', type: ActivityType.CLASS, date: '2024.10.05', status: '완료', year: '2024' },
-    { title: '자료구조 정복 스터디', type: ActivityType.CLASS, date: '2023.12.12', status: '완료', year: '2023' },
-    { title: '교내 앱 공모전 동상', type: ActivityType.PROJECT, date: '2023.09.12', status: '완료', year: '2023' },
-    { title: 'C언어 기초 프로그래밍', type: ActivityType.CLASS, date: '2022.06.10', status: '완료', year: '2022' },
-  ];
+  useEffect(() => {
+    setSelectedYear(availableYears[availableYears.length - 1]);
+  }, [availableYears]);
 
-  const filteredRecords = allRecords.filter(r => r.year === selectedYear);
-  const years = ['2021', '2022', '2023', '2024'];
+  const filteredRecords = normalizedRecords.filter((r) => r.year === selectedYear);
+
+  const formatDate = (date?: string) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toISOString().slice(0, 10).replace(/-/g, '.');
+  };
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -173,7 +190,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
         {/* Right Column: Yearly History */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 px-1">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 px-1">
             <h4 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-3">
               <span className="w-8 h-8 bg-[#114982] text-white rounded-lg flex items-center justify-center text-xs shadow-sm"><i className="fa-solid fa-timeline"></i></span>
               활동 타임라인
@@ -183,13 +200,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 <div 
                     className="absolute bg-[#114982] rounded-xl shadow-lg transition-all duration-300 ease-out"
                     style={{
-                        width: `calc((100% - 6px) / ${years.length})`,
-                        height: 'calc(100% - 12px)',
-                        left: `calc(3px + ${years.indexOf(selectedYear)} * (100% - 6px) / ${years.length})`,
+                  width: `calc((100% - 6px) / ${availableYears.length})`,
+                  height: 'calc(100% - 12px)',
+                  left: `calc(3px + ${availableYears.indexOf(selectedYear)} * (100% - 6px) / ${availableYears.length})`,
                         top: '6px'
                     }}
                 />
-                {years.map(y => (
+              {availableYears.map(y => (
                     <button 
                         key={y}
                         onClick={() => setSelectedYear(y)}
@@ -227,14 +244,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                                 rec.type === ActivityType.EXTRACURRICULAR ? 'bg-[#8B7355]/10 border-[#8B7355]/30 text-[#8B7355]' :
                                 rec.type === ActivityType.CLASS ? 'bg-[#FF7F7F]/10 border-[#FF7F7F]/30 text-[#FF7F7F]' : 'bg-green-50 border-green-100 text-green-600'
                             }`}>
-                                {rec.type}
+                              {ActivityTypeLabel[rec.type]}
                             </span>
                             </td>
-                            <td className="px-6 py-6 text-sm text-slate-400 font-bold">{rec.date}</td>
+                            <td className="px-6 py-6 text-sm text-slate-400 font-bold">{formatDate(rec.date)}</td>
                             <td className="px-8 py-6 text-right">
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-black ${rec.status === '완료' ? 'text-green-500' : 'text-amber-500'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${rec.status === '완료' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                                {rec.status}
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-black ${(rec.status || '진행중') === '완료' ? 'text-green-500' : 'text-amber-500'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${(rec.status || '진행중') === '완료' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                              {rec.status || '진행중'}
                             </span>
                             </td>
                         </tr>

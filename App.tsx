@@ -1,60 +1,112 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import RecordEditor from './components/RecordEditor';
 import AITools from './components/AITools';
-import { UserProfile, ActivityType } from './types';
+import { ActivityRecord, ActivityType, ActivityTypeLabel, CommunityMember, UserProfile } from './types';
+import { createRecord, fetchCommunityMembers, fetchRecords, fetchUserProfile } from './services/api';
+
+const DEFAULT_USER_ID = 1;
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [user, setUser] = useState<UserProfile>({
-    name: '배혜진',
-    major: '컴퓨터공학',
-    level: 7,
-    exp: 420,
-    maxExp: 1000,
-    characterTitle: '코드 숲의 탐험가'
-  });
-
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [records, setRecords] = useState<ActivityRecord[]>([]);
+  const [community, setCommunity] = useState<CommunityMember[]>([]);
   const [interestFilter, setInterestFilter] = useState('전체');
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mockSeniors = [
-    { name: '김민수', major: '컴퓨터공학', level: 82, job: '네이버 웹개발자', tags: ['AI', 'Frontend'], type: 'senior' },
-    { name: '정재희', major: '디자인', level: 45, job: '카카오 디자이너', tags: ['Design', 'UX'], type: 'friend' },
-    { name: '한유진', major: '경영학과', level: 12, job: '취준생', tags: ['PM', 'Marketing'], type: 'friend' },
-    { name: '지문호', major: '컴퓨터공학', level: 99, job: '구글 엔지니어', tags: ['Backend', 'AI'], type: 'senior' },
-    { name: '박준혁', major: '전자공학', level: 68, job: '삼성전자', tags: ['Embedded', 'Hardware'], type: 'senior' },
-    { name: '이서연', major: '컴퓨터공학', level: 25, job: '스타트업 인턴', tags: ['Frontend', 'App'], type: 'friend' },
-  ];
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      const [userData, recordData, communityData] = await Promise.all([
+        fetchUserProfile(DEFAULT_USER_ID),
+        fetchRecords({ userId: DEFAULT_USER_ID }),
+        fetchCommunityMembers({ limit: 50 })
+      ]);
+      setUser(userData);
+      setRecords(recordData);
+      setCommunity(communityData);
+      setError(null);
+    } catch (err: any) {
+      console.error(err);
+      setError('데이터를 불러오는데 실패했습니다. 서버가 실행 중인지 확인해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const myRecords = [
-    { title: '웹개발 캡스톤 프로젝트', type: ActivityType.PROJECT, date: '2024.11.20', desc: 'React와 Node.js를 이용한 협업 플랫폼' },
-    { title: '데이터베이스 시스템 기말', type: ActivityType.CLASS, date: '2024.11.10', desc: 'SQL 최적화 및 인덱싱 실습' },
-    { title: 'SW 마에스트로 15기 준비', type: ActivityType.EXTRACURRICULAR, date: '2024.11.15', desc: '코딩 테스트 대비 및 기획서 작성' },
-    { title: '교내 해커톤: 스마트 캠퍼스', type: ActivityType.PROJECT, date: '2024.09.12', desc: '캠퍼스 내 길찾기 AR 서비스' },
-    { title: '운영체제 설계 원리', type: ActivityType.CLASS, date: '2024.10.05', desc: 'Process Scheduling 시뮬레이션' },
-    { title: '팀워크 갈등 해결 기록', type: ActivityType.TEAMWORK, date: '2024.10.15', desc: '의사소통 부재 해결 프로세스' },
-  ];
+  useEffect(() => {
+    loadInitialData();
+  }, []);
 
-  const filteredSeniors = mockSeniors.filter(s => 
-    interestFilter === '전체' || s.tags.includes(interestFilter)
+  const refreshUser = async () => {
+    const userData = await fetchUserProfile(DEFAULT_USER_ID);
+    setUser(userData);
+  };
+
+  const refreshRecords = async () => {
+    const recordData = await fetchRecords({ userId: DEFAULT_USER_ID });
+    setRecords(recordData);
+  };
+
+  const handleCreateRecord = async ({ type, title, content }: { type: ActivityType; title: string; content: string; }) => {
+    const today = new Date().toISOString().split('T')[0];
+    await createRecord({
+      userId: DEFAULT_USER_ID,
+      type,
+      title,
+      content,
+      date: today,
+      description: content ? content.slice(0, 140) : undefined,
+      status: '완료'
+    });
+    await Promise.all([refreshRecords(), refreshUser()]);
+    alert('기록 완료! +15 EXP');
+  };
+
+  const filteredSeniors = community.filter(s => 
+    interestFilter === '전체' || (s.tags || []).includes(interestFilter)
   );
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-20 text-slate-500 font-bold">
+          데이터를 불러오는 중입니다...
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 text-red-600 font-bold gap-2">
+          <span>{error}</span>
+          <button className="text-sm underline" onClick={loadInitialData}>다시 시도</button>
+        </div>
+      );
+    }
+
+    if (!user) {
+      return (
+        <div className="flex items-center justify-center py-20 text-slate-500 font-bold">
+          사용자 정보를 불러올 수 없습니다.
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard user={user} />;
+        return <Dashboard user={user} records={records} loading={loading} />;
       case 'records':
         return (
           <div className="animate-fadeIn space-y-10">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
               <div className="lg:col-span-3">
-                <RecordEditor onSave={(data) => {
-                  setUser(prev => ({ ...prev, exp: prev.exp + 15 }));
-                  alert('기록 완료! +15 EXP');
-                }} />
+                <RecordEditor onSave={handleCreateRecord} />
               </div>
               <div className="lg:col-span-2 bg-white rounded-3xl border p-8 shadow-sm">
                 <h4 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
@@ -76,13 +128,13 @@ const App: React.FC = () => {
                     };
                     const categoryColor = getCategoryColor();
                     const isExpanded = expandedCategories[cat] || false;
-                    const recordCount = myRecords.filter(r => r.type === cat).length;
+                    const recordCount = records.filter(r => r.type === cat).length;
                     
                     return (
                     <div key={cat} className="space-y-3">
                       <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                         <span className="text-sm font-bold text-slate-500 uppercase flex items-center gap-2">
-                          {cat}
+                          {ActivityTypeLabel[cat]}
                           <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-400">
                             {recordCount}
                           </span>
@@ -106,9 +158,9 @@ const App: React.FC = () => {
                             animation: 'slideDown 0.3s ease-out'
                           }}
                         >
-                          {myRecords.filter(r => r.type === cat).map((r, i) => (
+                          {records.filter(r => r.type === cat).map((r) => (
                             <div 
-                              key={i} 
+                              key={r.id}
                               className="p-3 rounded-xl transition-colors cursor-pointer group"
                               style={{
                                 backgroundColor: `${categoryColor}10`,
@@ -122,7 +174,7 @@ const App: React.FC = () => {
                               }}
                             >
                               <p className="text-sm font-bold text-slate-700 group-hover:text-slate-900" style={{ color: categoryColor }}>{r.title}</p>
-                              <p className="text-[11px] text-slate-400">{r.date}</p>
+                              <p className="text-[11px] text-slate-400">{r.date ? r.date.split('T')[0] : '-'}</p>
                             </div>
                           ))}
                           {recordCount === 0 && (
@@ -139,7 +191,7 @@ const App: React.FC = () => {
           </div>
         );
       case 'ai-tools':
-        return <AITools />;
+        return <AITools userId={user.id} />;
       case 'community':
         return (
           <div className="animate-fadeIn space-y-10">
@@ -184,7 +236,7 @@ const App: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex gap-1 mb-4">
-                      {friend.tags.slice(0, 2).map(t => <span key={t} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{t}</span>)}
+                      {(friend.tags || []).slice(0, 2).map(t => <span key={t} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">#{t}</span>)}
                     </div>
                     <button className="w-full py-2 bg-[#FF7F66]/10 text-[#FF7F66] rounded-lg text-xs font-bold group-hover:bg-[#FF7F66] group-hover:text-white transition-all">활동 보러가기</button>
                   </div>
@@ -210,7 +262,7 @@ const App: React.FC = () => {
                       <p className="text-xs text-slate-400">{senior.major}</p>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-6">
-                      {senior.tags.map(t => <span key={t} className="text-[10px] bg-[#2563EB]/10 text-[#2563EB] px-2 py-0.5 rounded border border-[#2563EB]/20 font-bold">#{t}</span>)}
+                      {(senior.tags || []).map(t => <span key={t} className="text-[10px] bg-[#2563EB]/10 text-[#2563EB] px-2 py-0.5 rounded border border-[#2563EB]/20 font-bold">#{t}</span>)}
                     </div>
                     <button className="w-full py-3 bg-[#2563EB]/20 text-[#2563EB] rounded-xl text-xs font-bold hover:bg-[#2563EB] hover:text-white hover:scale-[1.02] transition-all shadow-lg shadow-[#2563EB]/10 hover:shadow-[#2563EB]/20">포트폴리오 엿보기</button>
                   </div>
@@ -360,7 +412,7 @@ const App: React.FC = () => {
           </div>
         );
       default:
-        return <Dashboard user={user} />;
+        return <Dashboard user={user} records={records} loading={loading} />;
     }
   };
 
