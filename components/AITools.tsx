@@ -4,15 +4,18 @@ import { generateResumeDraft, generateInterviewQuestions } from '../services/gem
 
 interface AIToolsProps {
   userId: number;
+  activeSubTab: 'resume' | 'interview';
+  setActiveSubTab: (tab: 'resume' | 'interview') => void;
 }
 
-const AITools: React.FC<AIToolsProps> = ({ userId }) => {
+const AITools: React.FC<AIToolsProps> = ({ userId, activeSubTab, setActiveSubTab }) => {
+  
   // Resume states
   const [resumeLoading, setResumeLoading] = useState(false);
   const [resumeResult, setResumeResult] = useState<any>(null);
   const [resumeCompany, setResumeCompany] = useState('');
   const [resumeJob, setResumeJob] = useState('');
-  const [question, setQuestion] = useState('');
+  const [questions, setQuestions] = useState<string[]>(['']);
 
   // Interview states
   const [interviewLoading, setInterviewLoading] = useState(false);
@@ -22,12 +25,29 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
   const handleResumeGenerate = async () => {
     setResumeLoading(true);
     try {
-      const result = await generateResumeDraft(userId, resumeCompany, resumeJob, question);
+      const questionText = questions.filter(q => q.trim()).join('\n\n');
+      const result = await generateResumeDraft(userId, resumeCompany, resumeJob, questionText);
       setResumeResult(result);
     } catch (err) {
       alert("AI 생성 중 오류가 발생했습니다.");
     }
     setResumeLoading(false);
+  };
+
+  const addQuestion = () => {
+    setQuestions([...questions, '']);
+  };
+
+  const removeQuestion = (index: number) => {
+    if (questions.length > 1) {
+      setQuestions(questions.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateQuestion = (index: number, value: string) => {
+    const newQuestions = [...questions];
+    newQuestions[index] = value;
+    setQuestions(newQuestions);
   };
 
   const handleInterviewGenerate = async () => {
@@ -42,14 +62,13 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
   };
 
   return (
-    <div className="w-full max-w-[1440px] mx-auto space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 자기소개서 초안 생성 */}
+    <div className="w-full max-w-[720px] mx-auto space-y-6">
+      {/* Content based on active tab */}
+      {activeSubTab === 'resume' && (
         <div className="bg-white rounded-2xl border p-8 shadow-sm">
-          <h3 className="text-xl font-bold text-slate-800 mb-6">자기소개서 초안 생성</h3>
           <div className="space-y-4 mb-6">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">지원 회사</label>
+              <label className="block text-base font-semibold text-slate-700 mb-1">지원 회사</label>
               <input 
                 type="text" 
                 placeholder="예: 구글 코리아" 
@@ -59,7 +78,7 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">지원 직무</label>
+              <label className="block text-base font-semibold text-slate-700 mb-1">지원 직무</label>
               <input 
                 type="text" 
                 placeholder="예: 프론트엔드 개발자" 
@@ -69,13 +88,40 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">자소서 문항</label>
-              <textarea 
-                placeholder="자소서 문항을 입력해주세요 (예: 지원 동기와 본인이 적임자인 이유를 기술하시오)" 
-                className="w-full border rounded-lg px-4 py-2 min-h-[100px] focus:ring-2 focus:ring-[#114982] focus:border-[#114982] outline-none transition-all resize-none"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-base font-semibold text-slate-700">자기소개서 문항</label>
+                <button
+                  type="button"
+                  onClick={addQuestion}
+                  className="flex items-center justify-center w-8 h-8 bg-[#114982] text-white rounded-lg hover:bg-[#0a2e55] transition-all"
+                >
+                  <i className="fa-solid fa-plus text-sm"></i>
+                </button>
+              </div>
+              <div className="space-y-3">
+                {questions.map((question, index) => (
+                  <div key={index} className="flex gap-2 items-start">
+                    <span className="flex items-center justify-center w-8 h-8 text-slate-600 font-bold text-sm pt-2">
+                      {index + 1}
+                    </span>
+                    <textarea 
+                      placeholder="예: 지원 동기를 기술하시오" 
+                      className="flex-1 border rounded-lg px-4 py-2 min-h-[40px] focus:ring-2 focus:ring-[#114982] focus:border-[#114982] outline-none transition-all resize-none"
+                      value={question}
+                      onChange={(e) => updateQuestion(index, e.target.value)}
+                    />
+                    {questions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(index)}
+                        className="flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all mt-2"
+                      >
+                        <i className="fa-solid fa-trash text-xs"></i>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -105,10 +151,10 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
             </div>
           )}
         </div>
+      )}
 
-        {/* 면접 예상 질문 시뮬레이션 */}
+      {activeSubTab === 'interview' && (
         <div className="bg-white rounded-2xl border p-8 shadow-sm">
-          <h3 className="text-xl font-bold text-slate-800 mb-6">면접 예상 질문 시뮬레이션</h3>
           <div className="space-y-4 mb-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">지원 회사</label>
@@ -155,7 +201,7 @@ const AITools: React.FC<AIToolsProps> = ({ userId }) => {
             </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

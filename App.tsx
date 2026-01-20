@@ -11,6 +11,8 @@ const DEFAULT_USER_ID = 1;
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [aiToolsSubTab, setAiToolsSubTab] = useState<'resume' | 'interview'>('resume');
+  const [showAiToolsSubHeader, setShowAiToolsSubHeader] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [records, setRecords] = useState<ActivityRecord[]>([]);
   const [community, setCommunity] = useState<CommunityMember[]>([]);
@@ -191,7 +193,7 @@ const App: React.FC = () => {
           </div>
         );
       case 'ai-tools':
-        return <AITools userId={user.id} />;
+        return <AITools userId={user.id} activeSubTab={aiToolsSubTab} setActiveSubTab={setAiToolsSubTab} />;
       case 'community':
         return (
           <div className="animate-fadeIn space-y-10">
@@ -430,7 +432,18 @@ const App: React.FC = () => {
           }
         }
       `}</style>
-      <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+      <Layout 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        aiToolsSubTab={aiToolsSubTab} 
+        setAiToolsSubTab={(tab) => {
+          setAiToolsSubTab(tab);
+          setActiveTab('ai-tools');
+          setShowAiToolsSubHeader(false);
+        }}
+        showAiToolsSubHeader={showAiToolsSubHeader}
+        setShowAiToolsSubHeader={setShowAiToolsSubHeader}
+      >
         {renderContent()}
       </Layout>
     </>

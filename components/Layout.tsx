@@ -5,9 +5,13 @@ interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  aiToolsSubTab?: 'resume' | 'interview';
+  setAiToolsSubTab?: (tab: 'resume' | 'interview') => void;
+  showAiToolsSubHeader?: boolean;
+  setShowAiToolsSubHeader?: (show: boolean) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, aiToolsSubTab, setAiToolsSubTab, showAiToolsSubHeader, setShowAiToolsSubHeader }) => {
   // Navigation menu without 'dashboard' (accessed via logo) and 'mypage' (accessed via profile icon)
   const menuItems = [
     { id: 'records', icon: 'fa-pen-to-square', label: '활동 기록' },
@@ -35,9 +39,18 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
             {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`px-4 lg:px-6 py-2.5 rounded-xl text-lg font-bold transition-all flex items-center justify-center whitespace-nowrap text-[#114982] ${
-                  activeTab === item.id 
+                onClick={() => {
+                  if (item.id === 'ai-tools' && setShowAiToolsSubHeader) {
+                    setShowAiToolsSubHeader(true);
+                  } else {
+                    setActiveTab(item.id);
+                    if (setShowAiToolsSubHeader) {
+                      setShowAiToolsSubHeader(false);
+                    }
+                  }
+                }}
+                className={`px-4 lg:px-6 py-2.5 rounded-xl text-xl font-bold transition-all flex items-center justify-center whitespace-nowrap text-black ${
+                  (showAiToolsSubHeader && item.id === 'ai-tools') || (!showAiToolsSubHeader && activeTab === item.id)
                     ? 'bg-[#114982]/10 shadow-md' 
                     : 'hover:bg-[#114982]/5'
                 }`}
@@ -72,6 +85,36 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
           </div>
         </div>
       </header>
+
+      {/* AI Tools Sub-Header - Visible when AI Tools tab is active or sub-header is shown */}
+      {(activeTab === 'ai-tools' || showAiToolsSubHeader) && setAiToolsSubTab && (
+        <div className="sticky top-20 bg-[#1e3a8a] w-full z-[90]">
+          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8">
+            <div className="flex gap-8">
+              <button
+                onClick={() => setAiToolsSubTab('resume')}
+                className={`py-3 text-lg font-semilight transition-all ${
+                  activeTab === 'ai-tools' && aiToolsSubTab === 'resume'
+                    ? 'text-white border-b-2 border-white'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                자기소개서 초안 생성
+              </button>
+              <button
+                onClick={() => setAiToolsSubTab('interview')}
+                className={`py-3 text-lg font-semilight transition-all ${
+                  activeTab === 'ai-tools' && aiToolsSubTab === 'interview'
+                    ? 'text-white border-b-2 border-white'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                면접 예상 질문 시뮬레이션
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">
